@@ -110,8 +110,12 @@ class Game extends React.Component {
     })
     let status;
     if (this.state.winner) {
-      status = 'Gagnant: ' + (this.state.winner === 'O' ? "Flavien" : "Arthur");
-    } else {
+      status = 'Gagnant: ' + (this.state.winner === player2 ? "Flavien" : "Arthur");
+    }
+    else if (isDraw(current.squares)) {
+      status = 'Match nul !!!';
+    }
+    else {
       status = 'Joueur suivant: ' + (this.state.xIsNext ? 'Arthur' : 'Flavien');
     }
 
@@ -131,6 +135,16 @@ class Game extends React.Component {
       </div>
     );
   }
+}
+
+function isDraw(squares) {
+
+  for (let i = 0; i < squares.length; i++) {
+    if (squares[i] === null) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function calculateWinner(squares) {
