@@ -76,6 +76,7 @@ class Game extends React.Component {
     this.setState({
       stepNumber: step,
       xIsNext: (step % 2) === 0,
+      winner: null
     });
   }
 
@@ -100,15 +101,22 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    squares[i] = this.state.xIsNext ? player1 : player2;
-    this.setState({
-      history: history.concat([{
-        squares: squares,
-      }]),
-      xIsNext: !this.state.xIsNext,
-      stepNumber: history.length,
-      winner: calculateWinner(squares)
-    });
+    if (squares[i] === null) {
+      squares[i] = this.state.xIsNext ? player1 : player2;
+      const winner = calculateWinner(squares);
+      if(winner){
+        /** Prevent rolling back when someone wins */
+      }
+
+      this.setState({
+        history: history.concat([{
+          squares: squares,
+        }]),
+        xIsNext: !this.state.xIsNext,
+        stepNumber: history.length,
+        winner: winner
+      });
+    }
   }
 
   render() {
@@ -127,7 +135,7 @@ class Game extends React.Component {
       )
     })
     let status;
-    if (this.state.winner === player1 || this.state.winner === player2 ) {
+    if (this.state.winner === player1 || this.state.winner === player2) {
       status = 'Gagnant: ' + (this.state.winner === player2 ? "Flavien" : "Arthur");
     }
     else if (this.state.winner === draw) {
@@ -147,7 +155,7 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <button onClick={() => this.reset()}>Reset</button>
+          <button onClick={() => this.reset()}>Start new game</button>
           <ol>{moves}</ol>
         </div>
       </div>
@@ -182,7 +190,7 @@ function calculateWinner(squares) {
       return squares[a];
     }
   }
-  if(isDraw(squares)){
+  if (isDraw(squares)) {
     return draw;
   }
   return null;
