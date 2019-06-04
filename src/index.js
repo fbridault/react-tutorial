@@ -1,7 +1,16 @@
+// @ts-check
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+const player1 = 'X';
+const player2 = 'O';
+const draw = 'D';
+
+/**
+ * @param {{ onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void; value: React.ReactNode; }} props
+ */
 function Square(props) {
   return (
     <button className="square" onClick={props.onClick}>
@@ -12,6 +21,9 @@ function Square(props) {
 
 class Board extends React.Component {
 
+  /**
+   * @param {number} i
+   */
   renderSquare(i) {
     return (
       <Square
@@ -57,6 +69,9 @@ class Game extends React.Component {
     }
   }
 
+  /**
+   * @param {number} step
+   */
   jumpTo(step) {
     this.setState({
       stepNumber: step,
@@ -75,6 +90,9 @@ class Game extends React.Component {
     })
   }
 
+  /**
+   * @param {number} i
+   */
   handleClick(i) {
     if (this.state.winner) {
       return;
@@ -82,7 +100,7 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    squares[i] = this.state.xIsNext ? player1 : player2;
     this.setState({
       history: history.concat([{
         squares: squares,
@@ -96,12 +114,12 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    
+
     const moves = history.map((step, move) => {
       const desc = move ?
-      'Go to move #' + move:
-      'Go to game start';
-      return(
+        'Go to move #' + move :
+        'Go to game start';
+      return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}
           </button>
@@ -109,10 +127,10 @@ class Game extends React.Component {
       )
     })
     let status;
-    if (this.state.winner) {
+    if (this.state.winner === player1 || this.state.winner === player2 ) {
       status = 'Gagnant: ' + (this.state.winner === player2 ? "Flavien" : "Arthur");
     }
-    else if (isDraw(current.squares)) {
+    else if (this.state.winner === draw) {
       status = 'Match nul !!!';
     }
     else {
@@ -163,6 +181,9 @@ function calculateWinner(squares) {
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
     }
+  }
+  if(isDraw(squares)){
+    return draw;
   }
   return null;
 }
