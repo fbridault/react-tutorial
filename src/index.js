@@ -7,6 +7,7 @@ import './index.css';
 const player1 = 'X';
 const player2 = 'O';
 const draw = 'D';
+const size = 3;
 
 /**
  * @param {{ onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void; value: React.ReactNode; }} props
@@ -19,9 +20,13 @@ function Square(props) {
   );
 }
 
-class Board extends React.Component {
+class Row extends React.Component {
 
-  /**
+  constructor(props) {
+    super(props);
+  }
+
+  /**x
    * @param {number} i
    */
   renderSquare(i) {
@@ -35,22 +40,26 @@ class Board extends React.Component {
 
   render() {
     return (
+      <div className="board-row">
+        {[...Array(size)].map((x, i) =>
+        this.renderSquare(this.props.id * size + i)
+        )}
+      </div>
+    );
+  }
+}
+
+class Board extends React.Component {
+
+
+  render() {
+    return (
       <div>
+        {[...Array(size)].map((x, i) =>
         <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
+          <Row id={i} squares={this.props.squares} onClick={this.props.onClick}/>
         </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+        )}
       </div>
     );
   }
@@ -61,7 +70,7 @@ class Game extends React.Component {
     super(props);
     this.state = {
       history: [{
-        squares: Array(9).fill(null),
+        squares: Array(size * size).fill(null),
       }],
       xIsNext: true,
       stepNumber: 0,
@@ -83,7 +92,7 @@ class Game extends React.Component {
   reset() {
     this.setState({
       history: [{
-        squares: Array(9).fill(null),
+        squares: Array( size * size).fill(null),
       }],
       xIsNext: !this.state.xIsNext,
       winner: null,
@@ -104,7 +113,7 @@ class Game extends React.Component {
     if (squares[i] === null) {
       squares[i] = this.state.xIsNext ? player1 : player2;
       const winner = calculateWinner(squares);
-      if(winner){
+      if (winner) {
         /** Prevent rolling back when someone wins */
       }
 
