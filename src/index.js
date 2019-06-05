@@ -7,7 +7,7 @@ import './index.css';
 const player1 = 'X';
 const player2 = 'O';
 const draw = 'D';
-const size = 3;
+const size = 5;
 
 /**
  * @param {{ onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void; value: React.ReactNode; }} props
@@ -32,6 +32,7 @@ class Row extends React.Component {
   renderSquare(i) {
     return (
       <Square
+        key={i}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)}
       />
@@ -42,7 +43,7 @@ class Row extends React.Component {
     return (
       <div className="board-row">
         {[...Array(size)].map((x, i) =>
-        this.renderSquare(this.props.id * size + i)
+          this.renderSquare(this.props.id * size + i)
         )}
       </div>
     );
@@ -56,9 +57,9 @@ class Board extends React.Component {
     return (
       <div>
         {[...Array(size)].map((x, i) =>
-        <div className="board-row">
-          <Row id={i} squares={this.props.squares} onClick={this.props.onClick}/>
-        </div>
+          <div key={i} className="board-row">
+            <Row key={i} id={i} squares={this.props.squares} onClick={this.props.onClick} />
+          </div>
         )}
       </div>
     );
@@ -92,7 +93,7 @@ class Game extends React.Component {
   reset() {
     this.setState({
       history: [{
-        squares: Array( size * size).fill(null),
+        squares: Array(size * size).fill(null),
       }],
       xIsNext: !this.state.xIsNext,
       winner: null,
@@ -183,20 +184,48 @@ function isDraw(squares) {
 }
 
 function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
+
+  let lines = [];
+
+  for (let i = 0; i < size; i++) {
+    let row = []
+    for (let j = 0; j < size; j++) {
+      row.push(i * size + j);
+    }
+    lines.push(row);
+  }
+  for (let i = 0; i < size; i++) {
+    let col = [];
+    for (let j = 0; j < size; j++) {
+      col.push(size * j + i)
+    }
+    lines.push(col);
+  }
+
+  let diag = [], diag2 = [];
+  for (let k = 0; k < size; k++) {
+    diag.push(k * size + k);
+    diag2.push(size - 1 + (k * size) - k);
+  }
+  lines.push(diag);
+  lines.push(diag2);
+
   for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+    const line = lines[i];
+
+    console.log(line);
+    if (squares[line[0]])
+    {
+      let win = true;
+      for (let k = 0; k < line.length - 1; k++) {
+        if (squares[line[k]] !== squares[line[k+1]]) {
+          win = false;
+          break;
+        }
+      }
+      if(win){
+        return squares[line[0]];
+      }
     }
   }
   if (isDraw(squares)) {
