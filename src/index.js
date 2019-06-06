@@ -7,14 +7,15 @@ import './index.css';
 const player1 = 'X';
 const player2 = 'O';
 const draw = 'D';
-const size = 5;
+const size = 3;
 
 /**
  * @param {{ onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void; value: React.ReactNode; }} props
  */
 function Square(props) {
+  let style = props.win ? "square-win" : "square";
   return (
-    <button className="square" onClick={props.onClick}>
+    <button className={style} onClick={props.onClick}>
       {props.value}
     </button>
   );
@@ -22,18 +23,26 @@ function Square(props) {
 
 class Row extends React.Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   /**x
    * @param {number} i
    */
   renderSquare(i) {
+    let win = false;
+    if (this.props.winner) {
+      console.log(this.props.winner);
+      
+      console.log(i);
+      if (this.props.winner.includes(i)) {
+        win = true;
+        console.log("zizi");
+      }
+    }
+
     return (
       <Square
         key={i}
         value={this.props.squares[i]}
+        win={win}
         onClick={() => this.props.onClick(i)}
       />
     )
@@ -58,7 +67,7 @@ class Board extends React.Component {
       <div>
         {[...Array(size)].map((x, i) =>
           <div key={i} className="board-row">
-            <Row key={i} id={i} squares={this.props.squares} onClick={this.props.onClick} />
+            <Row key={i} id={i} squares={this.props.squares} winner={this.props.winner} onClick={this.props.onClick} />
           </div>
         )}
       </div>
@@ -145,14 +154,17 @@ class Game extends React.Component {
       )
     })
     let status;
-    if (this.state.winner === player1 || this.state.winner === player2) {
-      status = 'Gagnant: ' + (this.state.winner === player2 ? "Flavien" : "Arthur");
-    }
-    else if (this.state.winner === draw) {
-      status = 'Match nul !!!';
+    if (this.state.winner) {
+      let winner = current.squares[this.state.winner[0]];
+      if (winner === player1 || winner === player2) {
+        status = 'Gagnant: ' + (winner === player2 ? "Flavien" : "Léonard");
+      }
+      else if (winner === draw) {
+        status = 'Match nul !!!';
+      }
     }
     else {
-      status = 'Joueur suivant: ' + (this.state.xIsNext ? 'Arthur' : 'Flavien');
+      status = 'Joueur suivant: ' + (this.state.xIsNext ? 'Léonard' : 'Flavien');
     }
 
     return (
@@ -160,11 +172,12 @@ class Game extends React.Component {
         <div className="game-board">
           <Board
             squares={current.squares}
+            winner={this.state.winner}
             onClick={(i) => this.handleClick(i)}
           />
         </div>
         <div className="game-info">
-          <div>{status}</div>
+          <div className="status">{status}</div>
           <button onClick={() => this.reset()}>Start new game</button>
           <ol>{moves}</ol>
         </div>
@@ -188,17 +201,13 @@ function calculateWinner(squares) {
   let lines = [];
 
   for (let i = 0; i < size; i++) {
-    let row = []
-    for (let j = 0; j < size; j++) {
-      row.push(i * size + j);
-    }
-    lines.push(row);
-  }
-  for (let i = 0; i < size; i++) {
+    let row = [];
     let col = [];
     for (let j = 0; j < size; j++) {
+      row.push(i * size + j);
       col.push(size * j + i)
     }
+    lines.push(row);
     lines.push(col);
   }
 
@@ -213,18 +222,16 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    console.log(line);
-    if (squares[line[0]])
-    {
+    if (squares[line[0]]) {
       let win = true;
       for (let k = 0; k < line.length - 1; k++) {
-        if (squares[line[k]] !== squares[line[k+1]]) {
+        if (squares[line[k]] !== squares[line[k + 1]]) {
           win = false;
           break;
         }
       }
-      if(win){
-        return squares[line[0]];
+      if (win) {
+        return line;
       }
     }
   }
