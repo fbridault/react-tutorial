@@ -29,12 +29,8 @@ class Row extends React.Component {
   renderSquare(i) {
     let win = false;
     if (this.props.winner) {
-      console.log(this.props.winner);
-      
-      console.log(i);
       if (this.props.winner.includes(i)) {
         win = true;
-        console.log("zizi");
       }
     }
 
